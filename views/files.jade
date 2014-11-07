@@ -1,0 +1,56 @@
+extends ./layout.jade
+
+block titleBlock
+  title= title
+
+block bodyBlock
+  table(class='table table-bordered table-hover')
+    thead
+      tr
+        th= mainrep
+        each rep in reps
+          th= rep
+    tbody
+      each mainfile in mainfiles
+        tr
+          th
+            strong!= mainfile.name + '&nbsp'
+              p(class='pull-right text-right')
+                span(class='label label-primary')= mainfile.prettydate
+                br
+                span(class='label label-info')= mainfile.prettysize
+          if mainfile.name in files
+            - var file = files[mainfile.name]
+            each rep in reps
+              - var found = false
+              each stat in file
+                if rep == stat.repository
+                  - found = true
+                  if ( stat.size == mainfile.size && stat.date.isSame(mainfile.date) )
+                    td(class='text-success')
+                      span(class='glyphicon glyphicon-thumbs-up')
+                  else
+                    td(class='text-danger')
+                      span(class='glyphicon glyphicon-thumbs-down')
+                      p(class='pull-right text-right')
+                        if stat.date.isSame(mainfile.date)
+                          span(class='label label-success')= stat.prettydate
+                        else
+                          span(class='label label-danger')= stat.prettydate
+                        br
+                        if stat.size == mainfile.size
+                          span(class='label label-success')= stat.prettysize
+                        else
+                          span(class='label label-danger')= stat.prettysize
+
+              if !found
+                td(class='text-danger')
+                  span(class='glyphicon glyphicon-question-sign') &nbsp;
+                  | Missing
+          else
+            each rep in reps
+              td(class='text-danger')
+                span(class='glyphicon glyphicon-question-sign') &nbsp;
+                | Missing
+
+
