@@ -1,12 +1,12 @@
 {
-  "name": "FileSystem",
+  "name": "WAPPDiff",
   "version": "0.0.1",
-  "description": "FileSystem test with Node",
+  "description": "Node and Express experiments and exploration",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": "",
+  "repository": "https://github.com/speedmetal/WAPDiff",
   "author": "SG",
   "license": "BSD",
   "dependencies": {
