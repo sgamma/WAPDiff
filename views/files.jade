@@ -7,14 +7,18 @@ block bodyBlock
   table(class='table table-bordered table-hover')
     thead
       tr
-        th= mainrep
-        each rep in reps
-          th= rep
+        th
+          strong!= mainrep
+          p(class='pull-right text-right')= '[' + mainpath + ']'
+        each rep, index in reps
+          th
+            strong!= rep
+            p(class='pull-right text-right')= '[' + repspath[index] + ']'
     tbody
       each mainfile in mainfiles
         tr
           th
-            strong!= mainfile.name + '&nbsp'
+            strong!= mainfile.name
               p(class='pull-right text-right')
                 span(class='label label-primary')= mainfile.prettydate
                 br

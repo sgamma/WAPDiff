@@ -1,20 +1,23 @@
 'use strict';
-var express     = require("express"),
-    //fs        = require("fs"),
-    //moment    = require("moment"),
-    _           = require('lodash'),
-    fileutils   = require("./lib/fileutils");
+var express         = require("express"),
+    compression     = require('compression'),
+    responseTime    = require('response-time'),
+    _               = require('lodash'),
+    fileutils       = require("./lib/fileutils"),
+    config          = require('./config');
 
 var app = express();
+app.use(compression({threshold: 512}));
+app.use(responseTime());
 app.set('views', './views');
 app.set('view engine', 'jade');
-app.set('port', process.env.PORT || 3000);
+app.set('port', config.web.port || 3000);
 app.use(express.static(__dirname + '/public'));
 
 var fUtils = fileutils();
 
 var server = app.listen(app.get('port'), function() {
-    console.log("server listening on 3000.");
+    console.log("server listening on " + app.get('port'));
 });
 
 function getStats(path, regEx) {
@@ -29,48 +32,32 @@ function getStats(path, regEx) {
 }
 
 app.get('/', function (req, res) {
-    var regEx = /^.*\.jar$/;
-    var vssPathIsitel = 'C:\\javalab\\VSS\\Javalab\\Distribution\\Isitel\\';
-    //var vssPathAltri = 'C:\\javalab\\VSS\\Javalab\\Distribution\\Altri\\';
-    var vssStats = getStats(vssPathIsitel, regEx);
-    //vssStats = vssStats.concat(getStats(vssPathAltri, regEx));
-    var _84Path = '\\\\10.30.254.84\\c$\\Javalab\\waportal\\WEB-INF\\lib\\';
-    var _84Stats = getStats(_84Path, regEx);
-    var _88WAPPath = '\\\\10.30.254.88\\c$\\Javalab\\waportal\\WEB-INF\\lib\\'
-    var _88WAPStats = getStats(_88WAPPath, regEx);
-    var _88PEMPath = '\\\\10.30.254.88\\c$\\Javalab\\wap-pem\\WEB-INF\\lib\\'
-    var _88PEMStats = getStats(_88PEMPath, regEx);
-    var lisaPath = '\\\\lisa\\LISA-D\\Javalab\\wap-test\\WEB-INF\\lib\\';
-    var lisaStats = getStats(lisaPath, regEx);
-
     var mainFiles = [];
-    var files = [];
+    var regEx = config.mainRepository.regEx;
+    var vssStats = getStats(config.mainRepository.path, regEx);
     vssStats.forEach(function(s, index, array) {
-        s.repository = 'VSS';
+        s.repository = config.mainRepository.name;
+        s.path = config.mainRepository.path;
         mainFiles.push(s);
     });
-    _84Stats.forEach(function(s, index, array) {
-        s.repository = 'WAP.84';
-        files.push(s);
-    });
-    _88WAPStats.forEach(function(s, index, array) {
-        s.repository = 'WAP.88';
-        files.push(s);
-    });
-    _88PEMStats.forEach(function(s, index, array) {
-        s.repository = 'PEM.88';
-        files.push(s);
-    });
-    lisaStats.forEach(function(s, index, array) {
-        s.repository = 'LISA';
-        files.push(s);
+
+    var files = [];
+    config.repositories.forEach(function(rep, index, array) {
+        var s = getStats(rep.path, regEx);
+        s.forEach(function(stat, index, array){
+            stat.repository = rep.name;
+            stat.path = rep.path;
+            files.push(stat);
+        });
     });
 
     var model = {
-        mainrep: 'VSS',
+        mainrep: config.mainRepository.name,
+        mainpath: config.mainRepository.path,
         mainfiles: _.sortBy(mainFiles, 'name'),
-        reps: ['WAP.84', 'WAP.88', 'PEM.88', 'LISA'],
-        files: _.groupBy(files, 'name'),
+        reps: _.pluck(config.repositories, 'name'),
+        repspath: _.pluck(config.repositories, 'path'),
+        files: _.groupBy(files, 'name')
     };
 
     //res.send(model);
