@@ -8,12 +8,12 @@ var express     = require("express"),
 var app = express();
 app.set('views', './views');
 app.set('view engine', 'jade');
+app.set('port', process.env.PORT || 3000);
 app.use(express.static(__dirname + '/public'));
-
 
 var fUtils = fileutils();
 
-var server = app.listen(3000, function(){
+var server = app.listen(app.get('port'), function() {
     console.log("server listening on 3000.");
 });
 
@@ -77,3 +77,17 @@ app.get('/', function (req, res) {
     res.render('files', model);
 });
 
+// custom 404 page
+app.use(function(req, res){
+    res.type('text/plain');
+    res.status(404);
+    res.send('404 - Not Found');
+});
+
+// custom 500 page
+app.use(function(err, req, res, next){
+    console.error(err.stack);
+    res.type('text/plain');
+    res.status(500);
+    res.send('500 - Server Error');
+});
