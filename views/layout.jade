@@ -6,12 +6,12 @@ html(lang='en')
     meta(name='viewport', content='width=device-width, initial-scale=1')
     block titleBlock
       title Node File System by SG
-
     <!-- Bootstrap -->
-    link(href='css/reset.min.css', rel='stylesheet')
-    link(href='css/bootstrap.min.css', rel='stylesheet')
-    link(href='http://fonts.googleapis.com/css?family=PT+Sans', rel='stylesheet', type='text/css')
-    link(href='css/main.css', rel='stylesheet')
+    block cssBlock
+      link(href='css/reset.min.css', rel='stylesheet')
+      link(href='css/bootstrap.min.css', rel='stylesheet')
+      link(href='http://fonts.googleapis.com/css?family=PT+Sans', rel='stylesheet', type='text/css')
+      link(href='css/main.css', rel='stylesheet')
   body
     div(class='container')
       div(class='row')
@@ -20,11 +20,11 @@ html(lang='en')
           block bodyBlock
         div(class='col-md-1')
       div(class='row')
-        div(class='col-md-1')
-        div(class='col-md-10')
-          p.text-center Coded with love by SG
-        div(class='col-md-1')
-
-    script(src='js/jquery-1.11.1.min.js')
-    script(src='js/bootstrap.min.js')
+        h4.text-center Coded with&nbsp;
+          span(class='glyphicon glyphicon-heart')
+          |&nbsp;eating&nbsp;
+          img(src='img/sushi6.png' style="vertical-align: bottom;")
+    block scriptBlock
+      script(src='js/jquery-1.11.1.min.js')
+      script(src='js/bootstrap.min.js')
 

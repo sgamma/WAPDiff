@@ -2,6 +2,7 @@
 var express         = require("express"),
     compression     = require('compression'),
     responseTime    = require('response-time'),
+    errorhandler    = require('errorhandler'),
     _               = require('lodash'),
     fileutils       = require("./lib/fileutils"),
     config          = require('./config');
@@ -64,6 +65,11 @@ app.get('/', function (req, res) {
     res.render('files', model);
 });
 
+app.get('/sync/:rep/:filename', function (req, res) {
+    var msg = 'sync file ' + req.params.filename + ' on repository ' + req.params.rep;
+    res.send(msg);
+});
+
 // custom 404 page
 app.use(function(req, res){
     res.type('text/plain');
@@ -71,10 +77,15 @@ app.use(function(req, res){
     res.send('404 - Not Found');
 });
 
-// custom 500 page
-app.use(function(err, req, res, next){
-    console.error(err.stack);
-    res.type('text/plain');
-    res.status(500);
-    res.send('500 - Server Error');
-});
+if ( 'development' == app.get('env') ) {
+    app.use(errorhandler());
+} else {
+    // custom 500 page
+    app.use(function(err, req, res, next){
+        console.error(err.stack);
+        res.type('text/plain');
+        res.status(500);
+        res.send('500 - Server Error');
+    });
+}
+

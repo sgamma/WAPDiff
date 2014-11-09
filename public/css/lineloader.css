@@ -1,0 +1,82 @@
+@import url(http://fonts.googleapis.com/css?family=Raleway:300);
+/* Card flip */
+.containerCard{
+  z-index:0;
+  transform-style:"preserve-3d";
+  -webkit-transform-style:"preserve-3d";
+  -moz-transform-style:"preserve-3d";
+  -ms-transform-style:"preserve-3d";
+}
+.frontCard, .backCard{
+  position:"absolute";
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  -ms-backface-visibility: hidden;
+}
+.frontCard{
+
+}
+.backCard{
+  transform: rotate(-180);
+}
+/* LineLoader */
+.slider{
+  font-family: 'Raleway';
+  font-stretch: normal;
+  font-size: 1.3em;
+  position: relative;
+}
+.line{
+  position: absolute;
+  background: #4a8df8;
+  width: 100%;
+  height: 2px;
+}
+.break{
+  position: absolute;
+  background: white;
+  width: 6px;
+  height: 2px;
+}
+.dot1{
+  -webkit-animation: loading 2s infinite;
+  -moz-animation: loading 2s infinite;
+  -ms-animation: loading 2s infinite;
+  -o-animation: loading 2s infinite;
+  animation: loading 2s infinite;
+}
+.dot2{
+  -webkit-animation: loading 2s 0.5s infinite;
+  -moz-animation: loading 2s 0.5s infinite;
+  -ms-animation: loading 2s 0.5s infinite;
+  -o-animation: loading 2s 0.5s infinite;
+  animation: loading 2s 0.5s infinite;
+}
+.dot3{
+  -webkit-animation: loading 2s 1s infinite;
+  -moz-animation: loading 2s 1s infinite;
+  -ms-animation: loading 2s 1s infinite;
+  -o-animation: loading 2s 1s infinite;
+  animation: loading 2s 1s infinite;
+}
+@keyframes "loading" {
+ from { left: 0; }
+ to   { left: 100%; }
+}
+@-moz-keyframes loading {
+ from { left: 0; }
+ to   { left: 100%; }
+}
+@-webkit-keyframes "loading" {
+ from { left: 0; }
+ to   { left: 100%; }
+}
+@-ms-keyframes "loading" {
+  from { left: 0; }
+  to   { left: 100%; }
+}
+ @-o-keyframes "loading" {
+  from { left: 0; }
+  to   { left: 100%; }
+}

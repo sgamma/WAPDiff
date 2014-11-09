@@ -3,17 +3,20 @@ extends ./layout.jade
 block titleBlock
   title= title
 
+append cssBlock
+  link(href='css/lineloader.css', rel='stylesheet')
+
 block bodyBlock
   table(class='table table-bordered table-hover')
     thead
       tr
         th
-          strong!= mainrep
-          p(class='pull-right text-right')= '[' + mainpath + ']'
+          h4!= mainrep
+            small(class='pull-right text-right')= ' ' + mainpath
         each rep, index in reps
           th
-            strong!= rep
-            p(class='pull-right text-right')= '[' + repspath[index] + ']'
+            h4!= rep
+              small(class='pull-right text-right')= ' ' + repspath[index]
     tbody
       each mainfile in mainfiles
         tr
@@ -34,19 +37,29 @@ block bodyBlock
                     td(class='text-success')
                       span(class='glyphicon glyphicon-thumbs-up')
                   else
-                    td(class='text-danger')
-                      span(class='glyphicon glyphicon-thumbs-down')
-                      p(class='pull-right text-right')
-                        if stat.date.isSame(mainfile.date)
-                          span(class='label label-success')= stat.prettydate
-                        else
-                          span(class='label label-danger')= stat.prettydate
-                        br
-                        if stat.size == mainfile.size
-                          span(class='label label-success')= stat.prettysize
-                        else
-                          span(class='label label-danger')= stat.prettysize
-
+                    - var id = rep + '-' + stat.name;
+                    td
+                      div.containerCard
+                        div.frontCard
+                          span(class='text-danger glyphicon glyphicon-thumbs-down') &nbsp;
+                          a.btnflip(href="#" data-toggle="tooltip" title="Aggiorna il file.")
+                            span(class='text-success glyphicon glyphicon-transfer')
+                          p(class='pull-right text-right')
+                            if stat.date.isSame(mainfile.date)
+                              span(class='label label-success')= stat.prettydate
+                            else
+                              span(class='label label-danger')= stat.prettydate
+                            br
+                            if stat.size == mainfile.size
+                              span(class='label label-success')= stat.prettysize
+                            else
+                              span(class='label label-danger')= stat.prettysize
+                        div.backCard
+                          div.slider
+                            div.line
+                              div(class='break dot1')
+                              div(class='break dot2')
+                              div(class='break dot3')
               if !found
                 td(class='text-danger')
                   span(class='glyphicon glyphicon-question-sign') &nbsp;
@@ -57,4 +70,7 @@ block bodyBlock
                 span(class='glyphicon glyphicon-question-sign') &nbsp;
                 | Missing
 
-
+append scriptBlock
+  script(src='js/TweenMax.min.js')
+  script(src='js/TimelineMax.min.js')
+  script(src='js/app.js')
