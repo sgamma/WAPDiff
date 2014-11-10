@@ -35,13 +35,12 @@ block bodyBlock
                     td(class='text-success')
                       span(class='glyphicon glyphicon-thumbs-up')
                   else
-                    - var id = rep + '-' + stat.name;
                     td
-                      div.containerCard
+                      div.containerCard(data-rep='#{rep}' data-file='#{stat.name}')
                         div.frontCard
                           span(class='text-danger glyphicon glyphicon-thumbs-down') &nbsp;
-                          a.btnflip(href="#" data-toggle="tooltip" title="Aggiorna il file.")
-                            span(class='text-success glyphicon glyphicon-transfer')
+                          button(type="button" class="btn btn-success btn-xs btnflip")
+                            span(class="glyphicon glyphicon-transfer")
                           p(class='pull-right text-right')
                             if stat.date.isSame(mainfile.date)
                               span(class='label label-success')= stat.prettydate

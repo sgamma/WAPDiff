@@ -65,9 +65,12 @@ app.get('/', function (req, res) {
     res.render('files', model);
 });
 
-app.get('/sync/:rep/:filename', function (req, res) {
+app.post('/sync/:rep/:filename', function (req, res) {
     var msg = 'sync file ' + req.params.filename + ' on repository ' + req.params.rep;
-    res.send(msg);
+    console.log(msg);
+    setTimeout(function(){
+        res.send({error:'Errore imprevisto'});
+    }, 2000);
 });
 
 // custom 404 page
