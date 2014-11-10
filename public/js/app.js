@@ -10,12 +10,13 @@ function cardflip() {
         backCard = $(this).children(".backCard");
 
     TweenMax.set(backCard, {css:{
+      position:"absolute",
+      top:0,
       rotationY:-180
     }});
 
     TweenMax.set([frontCard, backCard], {css:{
-      backfaceVisibility:"hidden",
-      position:"absolute"
+      backfaceVisibility:"hidden"
     }})
 
     var tl = new TimelineMax({paused:true});
@@ -26,17 +27,17 @@ function cardflip() {
       .to(element, .5, {z:0},.5);
 
     element.animation = tl;
-    $(this).children(".btnFlip").click(flip);
+    $(this).find(".btnflip").click(flip);
   });
 }
 
-function flip() {
-    this.animation.play();
+function flip(e) {
+    var card = e.target.parentNode.parentNode.parentNode;
+    card.animation.play();
 }
 
 function setup() {
   $("a[data-toggle='tooltip']").tooltip();
-
   cardflip();
 }
 

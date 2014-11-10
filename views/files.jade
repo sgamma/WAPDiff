@@ -11,12 +11,10 @@ block bodyBlock
     thead
       tr
         th
-          h4!= mainrep
-            small(class='pull-right text-right')= ' ' + mainpath
+          h3!= mainrep
         each rep, index in reps
           th
-            h4!= rep
-              small(class='pull-right text-right')= ' ' + repspath[index]
+            h3!= rep
     tbody
       each mainfile in mainfiles
         tr
@@ -55,7 +53,7 @@ block bodyBlock
                             else
                               span(class='label label-danger')= stat.prettysize
                         div.backCard
-                          div.slider
+                          div.slider Sync in progress...
                             div.line
                               div(class='break dot1')
                               div(class='break dot2')
