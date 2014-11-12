@@ -4,6 +4,7 @@ var express         = require("express"),
     responseTime    = require('response-time'),
     errorhandler    = require('errorhandler'),
     _               = require('lodash'),
+    loki            = require('lokijs'),
     fileutils       = require("./lib/fileutils"),
     config          = require('./config');
 
@@ -16,6 +17,9 @@ app.set('port', config.web.port || 3000);
 app.use(express.static(__dirname + '/public'));
 
 var fUtils = fileutils();
+var db = new loki('loki.json');
+var mainfiles = db.addCollection('mainfiles', ['name']);
+var files = db.addCollection('files', ['repository', 'name']);
 
 var server = app.listen(app.get('port'), function() {
     console.log("server listening on " + app.get('port'));
@@ -33,36 +37,39 @@ function getStats(path, regEx) {
 }
 
 app.get('/', function (req, res) {
-    var mainFiles = [];
+    //var mainFiles = [];
     var regEx = config.mainRepository.regEx;
     var vssStats = getStats(config.mainRepository.path, regEx);
     vssStats.forEach(function(s, index, array) {
         s.repository = config.mainRepository.name;
         s.path = config.mainRepository.path;
-        mainFiles.push(s);
+        //mainFiles.push(s);
+        mainfiles.insert(s);
     });
 
-    var files = [];
+    //var files = [];
     config.repositories.forEach(function(rep, index, array) {
         var s = getStats(rep.path, regEx);
         s.forEach(function(stat, index, array){
             stat.repository = rep.name;
             stat.path = rep.path;
-            files.push(stat);
+            //files.push(stat);
+            files.insert(stat);
         });
     });
 
     var model = {
         mainrep: config.mainRepository.name,
         mainpath: config.mainRepository.path,
-        mainfiles: _.sortBy(mainFiles, 'name'),
+        //mainfiles: _.sortBy(mainFiles, 'name'),
+        mainfiles: mainfiles.find(),
         reps: _.pluck(config.repositories, 'name'),
         repspath: _.pluck(config.repositories, 'path'),
-        files: _.groupBy(files, 'name')
+        files: _.groupBy(files.data, 'name')
     };
 
-    //res.send(model);
-    res.render('files', model);
+    res.send(model);
+    //res.render('files', model);
 });
 
 app.post('/sync/:rep/:filename', function (req, res) {
