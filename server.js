@@ -62,14 +62,15 @@ app.get('/', function (req, res) {
         mainrep: config.mainRepository.name,
         mainpath: config.mainRepository.path,
         //mainfiles: _.sortBy(mainFiles, 'name'),
-        mainfiles: mainfiles.find(),
+        mainfiles: mainfiles.chain().simplesort('name').data(),
         reps: _.pluck(config.repositories, 'name'),
         repspath: _.pluck(config.repositories, 'path'),
-        files: _.groupBy(files.data, 'name')
+        files: files
     };
 
-    res.send(model);
-    //res.render('files', model);
+    //var test = files.chain().find({'repository': '84'}).find({'name': 'bonecp-0.7.1.RELEASE.jar'}).data()[0];
+    //res.send(test);
+    res.render('files2', model);
 });
 
 app.post('/sync/:rep/:filename', function (req, res) {

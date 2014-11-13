@@ -35,6 +35,7 @@ block bodyBlock
                     td(class='text-success')
                       span(class='glyphicon glyphicon-thumbs-up')
                   else
+                    - var id = rep + '-' + stat.name;
                     td
                       div.containerCard(data-rep='#{rep}' data-file='#{stat.name}')
                         div.frontCard
