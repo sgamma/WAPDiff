@@ -6,7 +6,7 @@ var express         = require("express"),
     _               = require('lodash'),
     loki            = require('lokijs'),
     fileutils       = require("./lib/fileutils"),
-    config          = require('./config');
+    config          = require('./config.isitel');
 
 var app = express();
 app.use(compression({threshold: 512}));
@@ -16,16 +16,12 @@ app.set('view engine', 'jade');
 app.set('port', config.web.port || 3000);
 app.use(express.static(__dirname + '/public'));
 
-var fUtils = fileutils();
-var db = new loki('loki.json');
-var mainfiles = db.addCollection('mainfiles', ['name']);
-var files = db.addCollection('files', ['repository', 'name']);
-
 var server = app.listen(app.get('port'), function() {
     console.log("server listening on " + app.get('port'));
 });
 
 function getStats(path, regEx) {
+    var fUtils = fileutils();
     var files = fUtils.files(path, regEx);
     var fStats = [];
     files.forEach(function(f, index, array) {
@@ -37,45 +33,62 @@ function getStats(path, regEx) {
 }
 
 app.get('/', function (req, res) {
-    //var mainFiles = [];
+    global.db = new loki();
+    global.mainfiles = global.db.addCollection('mainfiles', ['name']);
+    global.files = global.db.addCollection('files', ['repository', 'name']);
+
     var regEx = config.mainRepository.regEx;
     var vssStats = getStats(config.mainRepository.path, regEx);
     vssStats.forEach(function(s, index, array) {
         s.repository = config.mainRepository.name;
         s.path = config.mainRepository.path;
-        //mainFiles.push(s);
-        mainfiles.insert(s);
+        s.backup = config.mainRepository.backup;
+        global.mainfiles.insert(s);
     });
 
-    //var files = [];
     config.repositories.forEach(function(rep, index, array) {
         var s = getStats(rep.path, regEx);
         s.forEach(function(stat, index, array){
             stat.repository = rep.name;
             stat.path = rep.path;
-            //files.push(stat);
-            files.insert(stat);
+            global.files.insert(stat);
         });
     });
 
     var model = {
         mainrep: config.mainRepository.name,
         mainpath: config.mainRepository.path,
-        //mainfiles: _.sortBy(mainFiles, 'name'),
-        mainfiles: mainfiles.chain().simplesort('name').data(),
+        mainfiles: global.mainfiles.chain().simplesort('name').data(),
         reps: _.pluck(config.repositories, 'name'),
         repspath: _.pluck(config.repositories, 'path'),
-        files: files
+        files: global.files
     };
 
-    //var test = files.chain().find({'repository': '84'}).find({'name': 'bonecp-0.7.1.RELEASE.jar'}).data()[0];
+    //var test = global.files.chain().find({'repository': '84'}).find({'name': 'bonecp-0.7.1.RELEASE.jar'}).data()[0];
     //res.send(test);
     res.render('files2', model);
 });
 
-app.post('/sync/:rep/:filename', function (req, res) {
-    var msg = 'sync file ' + req.params.filename + ' on repository ' + req.params.rep;
+app.post('/sync/:fid/:mfid', function (req, res) {
+
+    var msg = 'sync file ' + req.params.fid + ' with mainfile ' + req.params.mfid;
     console.log(msg);
+    var mfile = global.mainfiles.get(req.params.mfid);
+    console.log(mfile);
+
+    /*
+    console.log('mfiles: ' + mfile);
+    var file = global.files.get(req.params.fid);
+    console.log('file: ' + file);
+    console.log("Fare backup di " + file.path + file.name + " in " + file.backup);
+    console.log("Copiare " + mfile.path + mfile.name + " in " + file.path);
+    if ( mfile && file ) {
+        console.log("Fare backup di " + file.path + file.name + " in " + file.backup);
+        console.log("Copiare " + mfile.path + mfile.name + " in " + file.path);
+    } else {
+        console.log("Errore file non torvati!");
+    }
+    */
     setTimeout(function(){
         res.send({error:'Errore imprevisto'});
     }, 2000);

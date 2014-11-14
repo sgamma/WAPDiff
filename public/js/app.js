@@ -30,8 +30,8 @@ function cardflip() {
 
     element.animation = tl;
     var eventData = {
-        rep  : $(element).attr('data-rep'),
-        file : $(element).attr('data-file')
+        fid  : $(element).attr('data-fid'),
+        mfid : $(element).attr('data-mfid')
     }
     $(this).find(".btnflip").on('click', eventData, flip);
   });
@@ -42,7 +42,7 @@ function flip(e) {
   card.animation.play();
   $.ajax({
     type: "POST",
-    url: '/sync/'+e.data.rep+'/'+e.data.file,
+    url: '/sync/'+e.data.fid+'/'+e.data.mfid,
     data: {},
     success: function(data) {
       console.log("Sync successfull");
@@ -65,7 +65,6 @@ function setFrontCardOk(frontCard) {
 }
 
 function setup() {
-  //$("button[data-toggle='tooltip']").tooltip();
   cardflip();
 }
 
