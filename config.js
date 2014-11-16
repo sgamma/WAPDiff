@@ -10,8 +10,15 @@ config.mainRepository = {
 };
 
 config.repositories = [
-  {name: '84', path: 'D:\\jslab\\fs.test\\84\\'},
-  {name: '88', path: 'D:\\jslab\\fs.test\\88\\'},
+  {
+    name: '84',
+    path: 'D:\\jslab\\fs.test\\84\\',
+    backup: 'D:\\jslab\\fs.test\\84\\backup\\'
+  },{
+    name: '88',
+    path: 'D:\\jslab\\fs.test\\88\\',
+    backup: 'D:\\jslab\\fs.test\\88\\backup\\'
+  }
 ];
 
 module.exports = config;

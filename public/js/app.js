@@ -33,35 +33,53 @@ function cardflip() {
         fid  : $(element).attr('data-fid'),
         mfid : $(element).attr('data-mfid')
     }
-    $(this).find(".btnflip").on('click', eventData, flip);
+    $(this).find(".btnflip").off('click').on('click', eventData, flip);
   });
 }
 
 function flip(e) {
+  e.preventDefault();
   var card = e.target.parentNode.parentNode.parentNode;
   card.animation.play();
-  $.ajax({
-    type: "POST",
-    url: '/sync/'+e.data.fid+'/'+e.data.mfid,
-    data: {},
-    success: function(data) {
-      console.log("Sync successfull");
-      setFrontCardOk(e.target.parentNode.parentNode);
-    },
-    dataType: 'JSON'
-  }).fail(function(data){
-    console.log("ERRORE: " + data.error);
-    //setup error message
-  }).always(function(data){
-    card.animation.reverse();
-  });
+  setTimeout(function(){
+    $.ajax({
+      type: "POST",
+      url: '/sync',
+      data: {
+        fid: e.data.fid,
+        mfid: e.data.mfid
+      },
+      dataType: 'JSON'
+    }).done(function(data){
+       if ( data.result ) {
+          console.log("Sync successfull");
+          setFrontCardOk(e.target.parentNode.parentNode);
+        } else {
+          console.log("Sync failed: " + data.error.userMessage);
+          setFrontCardError(e.target.parentNode.parentNode, data.error.userMessage);
+        }
+    }).fail(function(data){
+      setFrontCardError(e.target.parentNode.parentNode, data.error.userMessage || 'Errore imprevisto');
+    }).always(function(data){
+      card.animation.reverse();
+    });
+  }, 1000);
 }
 
 function setFrontCardOk(frontCard) {
-  $(frontCard).children().remove();
-  $(frontCard)
+  var $fc = $(frontCard);
+  $fc.children().remove();
+  $fc
     .addClass('text-success')
     .append($('<span>').addClass('glyphicon glyphicon-thumbs-up'));
+}
+
+function setFrontCardError(frontCard, errMsg) {
+  var $fc = $(frontCard);
+  var $spanError = $('<span>').addClass('text-danger').text(errMsg);
+  $fc
+    .find('.btnflip')
+    .replaceWith($spanError);
 }
 
 function setup() {

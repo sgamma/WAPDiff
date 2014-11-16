@@ -10,16 +10,15 @@
   "author": "SG",
   "license": "BSD",
   "dependencies": {
+    "body-parser": "^1.9.2",
     "compression": "~1.2.0",
     "errorhandler": "~1.2.2",
     "express": "~4.10.0",
+    "fs-extra": "^0.12.0",
     "jade": "~1.7.0",
     "lodash": "~2.4.1",
     "lokijs": "^1.0.2",
-    "mkdirp": "~0.5.0",
     "moment": "~2.8.3",
-    "ncp": "~1.0.1",
-    "response-time": "~2.2.0",
-    "rimraf": "~2.2.8"
+    "response-time": "~2.2.0"
   }
 }

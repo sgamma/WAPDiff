@@ -10,7 +10,7 @@ block bodyBlock
   table(class='table table-bordered table-hover')
     thead
       tr
-        th
+        th(style='width:300px;')
           h3!= mainrep
         each rep, index in reps
           th
@@ -24,49 +24,41 @@ block bodyBlock
                 span(class='label label-primary')= mainfile.prettydate
                 br
                 span(class='label label-info')= mainfile.prettysize
-          if mainfile.name in files
-            - var file = files[mainfile.name]
-            each rep in reps
-              - var found = false
-              each stat in file
-                if rep == stat.repository
-                  - found = true
-                  if ( stat.size == mainfile.size && stat.date.isSame(mainfile.date) )
-                    td(class='text-success')
-                      span(class='glyphicon glyphicon-thumbs-up')
-                  else
-                    - var id = rep + '-' + stat.name;
-                    td
-                      div.containerCard(data-rep='#{rep}' data-file='#{stat.name}')
-                        div.frontCard
-                          span(class='text-danger glyphicon glyphicon-thumbs-down') &nbsp;
-                          button(type="button" class="btn btn-success btn-xs btnflip")
-                            span(class="glyphicon glyphicon-transfer")
-                          p(class='pull-right text-right')
-                            if stat.date.isSame(mainfile.date)
-                              span(class='label label-success')= stat.prettydate
-                            else
-                              span(class='label label-danger')= stat.prettydate
-                            br
-                            if stat.size == mainfile.size
-                              span(class='label label-success')= stat.prettysize
-                            else
-                              span(class='label label-danger')= stat.prettysize
-                        div.backCard
-                          div.slider Sync in progress...
-                            div.line
-                              div(class='break dot1')
-                              div(class='break dot2')
+          each rep in reps
+            - var file = files.chain().find({'name': mainfile.name}).find({'repository': rep}).data();
+            if file && file.length == 1
+              - var f = file[0]
+              if ( f.size == mainfile.size && f.date.isSame(mainfile.date) )
+                td(class='text-success')
+                  span(class='glyphicon glyphicon-thumbs-up')
+              else
+                td
+                  div.containerCard(data-fid='#{f.id}' data-mfid='#{mainfile.id}')
+                    div.frontCard
+                      span(class='text-danger glyphicon glyphicon-thumbs-down') &nbsp;
+                      button(type="button" class="btn btn-success btn-xs btnflip")
+                        span(class="glyphicon glyphicon-transfer")
+                      p(class='pull-right text-right')
+                        if f.date.isSame(mainfile.date)
+                          span(class='label label-success')= f.prettydate
+                        else
+                          span(class='label label-danger')= f.prettydate
+                        br
+                        if f.size == mainfile.size
+                          span(class='label label-success')= f.prettysize
+                        else
+                          span(class='label label-danger')= f.prettysize
+                    div.backCard
+                      div.slider Sync in progress...
+                        div.line
+                          div(class='break dot1')
+                          div(class='break dot2')
                               div(class='break dot3')
-              if !found
-                td(class='text-danger')
-                  span(class='glyphicon glyphicon-question-sign') &nbsp;
-                  | Missing
-          else
-            each rep in reps
+            else
               td(class='text-danger')
                 span(class='glyphicon glyphicon-question-sign') &nbsp;
                 | Missing
+
 
 append scriptBlock
   script(src='js/TweenMax.min.js')

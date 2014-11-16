@@ -3,10 +3,11 @@ var express         = require("express"),
     compression     = require('compression'),
     responseTime    = require('response-time'),
     errorhandler    = require('errorhandler'),
+    bodyParser      = require('body-parser'),
     _               = require('lodash'),
     loki            = require('lokijs'),
     fileutils       = require("./lib/fileutils"),
-    config          = require('./config.isitel');
+    config          = require('./config');
 
 var app = express();
 app.use(compression({threshold: 512}));
@@ -15,6 +16,8 @@ app.set('views', './views');
 app.set('view engine', 'jade');
 app.set('port', config.web.port || 3000);
 app.use(express.static(__dirname + '/public'));
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 var server = app.listen(app.get('port'), function() {
     console.log("server listening on " + app.get('port'));
@@ -42,7 +45,6 @@ app.get('/', function (req, res) {
     vssStats.forEach(function(s, index, array) {
         s.repository = config.mainRepository.name;
         s.path = config.mainRepository.path;
-        s.backup = config.mainRepository.backup;
         global.mainfiles.insert(s);
     });
 
@@ -51,6 +53,7 @@ app.get('/', function (req, res) {
         s.forEach(function(stat, index, array){
             stat.repository = rep.name;
             stat.path = rep.path;
+            stat.backup = rep.backup;
             global.files.insert(stat);
         });
     });
@@ -66,39 +69,79 @@ app.get('/', function (req, res) {
 
     //var test = global.files.chain().find({'repository': '84'}).find({'name': 'bonecp-0.7.1.RELEASE.jar'}).data()[0];
     //res.send(test);
-    res.render('files2', model);
+    res.render('files', model);
 });
 
-app.post('/sync/:fid/:mfid', function (req, res) {
-
-    var msg = 'sync file ' + req.params.fid + ' with mainfile ' + req.params.mfid;
-    console.log(msg);
-    var mfile = global.mainfiles.get(req.params.mfid);
-    console.log(mfile);
-
-    /*
-    console.log('mfiles: ' + mfile);
-    var file = global.files.get(req.params.fid);
-    console.log('file: ' + file);
-    console.log("Fare backup di " + file.path + file.name + " in " + file.backup);
-    console.log("Copiare " + mfile.path + mfile.name + " in " + file.path);
+app.post('/sync', function (req, res) {
+    var fid = parseInt(req.body.fid,10);
+    var mfid = parseInt(req.body.mfid,10);
+    var mfile = global.mainfiles.get(mfid);
+    var file = global.files.get(fid);
     if ( mfile && file ) {
-        console.log("Fare backup di " + file.path + file.name + " in " + file.backup);
-        console.log("Copiare " + mfile.path + mfile.name + " in " + file.path);
+        var fUtils = fileutils();
+        var f = file.path + file.name;
+        var mf = mfile.path + mfile.name;
+        fUtils.backup(f, file.backup, function(err, done) {
+            console.log("sync post - Dentro callback backup");
+            if (err) {
+                console.log('sync post - Errore nella callback backup');
+                err.userMessage = 'sync post - Errore nel backup del file';
+                res.send({
+                        result: false,
+                        error: err});
+            } else if ( done ) {
+                console.log('sync post - Backup fatto ... procedo con la copia');
+                fUtils.copy(mf, file.path, function(err, done){
+                    console.log("sync post - Dentro callback copia");
+                    if (err) {
+                        console.log('sync post - Errore nella copia file');
+                        err.userMessage = 'Errore nella copia del file';
+                        res.send({
+                            result: false,
+                            error: err});
+                    } else if (done) {
+                        console.log('sync post - Copia fatta mando ok');
+                        res.json({
+                                error: null,
+                                result: true
+                            });
+                    }
+                });
+            }
+        });
     } else {
-        console.log("Errore file non torvati!");
+        var e = new Error();
+        e.userMessage = 'File non trovati';
+        res.send({result: false,
+                  error: e});
     }
-    */
-    setTimeout(function(){
-        res.send({error:'Errore imprevisto'});
-    }, 2000);
 });
+
+app.get('*', function(req, res, next) {
+    var err = new Error();
+    err.status = 404;
+    next(err);
+})
 
 // custom 404 page
-app.use(function(req, res){
+app.use(function(err, req, res, next) {
+    if(err.status !== 404) {
+        return next();
+    }
     res.type('text/plain');
     res.status(404);
-    res.send('404 - Not Found');
+    res.send(err.userMessage || '404 - Not Found');
+});
+
+app.use(function(err, req, res, next) {
+    if(err.status === 500 && req.xhr) {
+        res
+            .status(500)
+            .send({error: {
+                    userMessage: err.userMessage || 'Errore imprevisto.'}
+                });
+    }
+    return next();
 });
 
 if ( 'development' == app.get('env') ) {
@@ -112,4 +155,3 @@ if ( 'development' == app.get('env') ) {
         res.send('500 - Server Error');
     });
 }
-
